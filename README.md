@@ -25,4 +25,4 @@ https://www.theforage.com/virtual-internships/R5iK7HMxJGBgaSbvk
 - `Contrubuting to the Open Source Community`
 
 ## My Certificate of Completion
-
+![](https://github.com/AllenYao06/JPMorgan-Chase-Software-Engineer-Virtual-Internship/blob/e6be1be8a2d1efe1b9945d110699598f70d191aa/My%20Certificate%20of%20Completion.pdf)
