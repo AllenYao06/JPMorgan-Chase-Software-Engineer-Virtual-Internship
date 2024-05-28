@@ -25,4 +25,4 @@ https://www.theforage.com/virtual-internships/R5iK7HMxJGBgaSbvk
 - `Contrubuting to the Open Source Community`
 
 ## My Certificate of Completion
-https://www.theforage.com/simulations/jpmorgan/software-engineering-btjx
+
