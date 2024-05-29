@@ -1,0 +1,163 @@
+From 704fd7969aa91479f90a3024755295369981112d Mon Sep 17 00:00:00 2001
+From: Jingyuan <AllenYaoSH@outlook.com>
+Date: Wed, 29 May 2024 14:30:26 +0800
+Subject: [PATCH 1/6] Update getDataPoint Method
+
+---
+ client3.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/client3.py b/client3.py
+index 3fc09b7..6b8078a 100644
+--- a/client3.py
++++ b/client3.py
+@@ -35,7 +35,7 @@ def getDataPoint(quote):
+     stock = quote['stock']
+     bid_price = float(quote['top_bid']['price'])
+     ask_price = float(quote['top_ask']['price'])
+-    price = bid_price
++    price = （bid_price+ask_price)/2;
+     return stock, bid_price, ask_price, price
+ 
+ 
+-- 
+2.45.1.windows.1
+
+
+From 14d0c2b391908dbeb5f3b55e529eecacb50f872c Mon Sep 17 00:00:00 2001
+From: Jingyuan <AllenYaoSH@outlook.com>
+Date: Wed, 29 May 2024 14:31:55 +0800
+Subject: [PATCH 2/6] Update getRatioMethod
+
+---
+ client3.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/client3.py b/client3.py
+index 6b8078a..7119d89 100644
+--- a/client3.py
++++ b/client3.py
+@@ -42,7 +42,9 @@ def getDataPoint(quote):
+ def getRatio(price_a, price_b):
+     """ Get ratio of price_a and price_b """
+     """ ------------- Update this function ------------- """
+-    return 1
++    if (price_b==0):
++        return
++    return price_a/price_b
+ 
+ 
+ # Main
+-- 
+2.45.1.windows.1
+
+
+From 63c711001b07cbe431597e2d2c39e6170be1639b Mon Sep 17 00:00:00 2001
+From: Jingyuan <AllenYaoSH@outlook.com>
+Date: Wed, 29 May 2024 14:34:01 +0800
+Subject: [PATCH 3/6] Update Main Method
+
+---
+ client3.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/client3.py b/client3.py
+index 7119d89..1beaf53 100644
+--- a/client3.py
++++ b/client3.py
+@@ -54,8 +54,10 @@ if __name__ == "__main__":
+         quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
+ 
+         """ ----------- Update to get the ratio --------------- """
++        prices={}
+         for quote in quotes:
+             stock, bid_price, ask_price, price = getDataPoint(quote)
++            prices[stock]=price
+             print("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price))
+ 
+-        print("Ratio %s" % getRatio(price, price))
++        print("Ratio %s" % getRatio(prices["ABC"], prices["DEF"]))
+-- 
+2.45.1.windows.1
+
+
+From 86eb0531bd3be0f34e22b389bcda51ffd889af3f Mon Sep 17 00:00:00 2001
+From: Jingyuan <AllenYaoSH@outlook.com>
+Date: Wed, 29 May 2024 14:46:33 +0800
+Subject: [PATCH 4/6] eliminate one error
+
+---
+ client3.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/client3.py b/client3.py
+index 1beaf53..a91bc98 100644
+--- a/client3.py
++++ b/client3.py
+@@ -35,7 +35,7 @@ def getDataPoint(quote):
+     stock = quote['stock']
+     bid_price = float(quote['top_bid']['price'])
+     ask_price = float(quote['top_ask']['price'])
+-    price = （bid_price+ask_price)/2;
++    price = (bid_price+ask_price)/2;
+     return stock, bid_price, ask_price, price
+ 
+ 
+-- 
+2.45.1.windows.1
+
+
+From d9979a0a64c65f4f46141227d5712a78df202ab0 Mon Sep 17 00:00:00 2001
+From: Jingyuan <AllenYaoSH@outlook.com>
+Date: Wed, 29 May 2024 14:48:28 +0800
+Subject: [PATCH 5/6] add assertion to test_getDataPoint_calculatePrice Method
+
+---
+ client_test.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/client_test.py b/client_test.py
+index af2bf26..4e481a8 100644
+--- a/client_test.py
++++ b/client_test.py
+@@ -8,6 +8,9 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote),(quote['stock'],quote['top_bid']['price'],quote['top_ask']['price'],(quote['top_bid']['price']+quote['top_ask']['price'])/2))
++
+ 
+   def test_getDataPoint_calculatePriceBidGreaterThanAsk(self):
+     quotes = [
+-- 
+2.45.1.windows.1
+
+
+From 27698adeb56afcabe636895c8fc18b63785a18e9 Mon Sep 17 00:00:00 2001
+From: Jingyuan <AllenYaoSH@outlook.com>
+Date: Wed, 29 May 2024 14:50:30 +0800
+Subject: [PATCH 6/6] Add assertion to calculatePriceBidGreaterThanAsk
+
+---
+ client_test.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/client_test.py b/client_test.py
+index 4e481a8..1b77cab 100644
+--- a/client_test.py
++++ b/client_test.py
+@@ -18,7 +18,9 @@ class ClientTest(unittest.TestCase):
+       {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
+     ]
+     """ ------------ Add the assertion below ------------ """
+-
++    for quote in quotes:
++      self.assertEqual(getDataPoint(quote), (quote['stock'], quote['top_bid']['price'], quote['top_ask']['price'],
++                                             (quote['top_bid']['price'] + quote['top_ask']['price']) / 2))
+ 
+   """ ------------ Add more unit tests ------------ """
+ 
+-- 
+2.45.1.windows.1
+
