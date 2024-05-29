@@ -1,0 +1,172 @@
+From ad40a05144b4891cb7aa83c16fe6afce77aac1eb Mon Sep 17 00:00:00 2001
+From: Jingyuan Yao <AllenYaoSH@outlook.com>
+Date: Fri, 24 May 2024 10:21:35 +0800
+Subject: [PATCH 1/5] modify 21 componentDidMount()
+
+---
+ src/Graph.tsx | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index 277797d..f87d893 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -23,10 +23,13 @@ class Graph extends Component<IProps, {}> {
+     const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
+ 
+     const schema = {
+-      stock: 'string',
+-      top_ask_price: 'float',
+-      top_bid_price: 'float',
++      price_abc: 'float',
++      price_def: 'float',
++      ratio:'float',
+       timestamp: 'date',
++      upper_bound: 'float',
++      lower_bound:'float',
++      trigger_alert:'float',
+     };
+ 
+     if (window.perspective && window.perspective.worker()) {
+-- 
+2.45.1.windows.1
+
+
+From 1cc6ab0976c427768fb829f5f2dac5fbc0675a42 Mon Sep 17 00:00:00 2001
+From: Jingyuan Yao <AllenYaoSH@outlook.com>
+Date: Fri, 24 May 2024 10:25:25 +0800
+Subject: [PATCH 2/5] 46-53 add attributes
+
+---
+ src/Graph.tsx | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index f87d893..18e20a8 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -43,10 +43,13 @@ class Graph extends Component<IProps, {}> {
+       elem.setAttribute('row-pivots', '["timestamp"]');
+       elem.setAttribute('columns', '["top_ask_price"]');
+       elem.setAttribute('aggregates', JSON.stringify({
+-        stock: 'distinctcount',
+-        top_ask_price: 'avg',
+-        top_bid_price: 'avg',
++        price_abc: 'avg',
++        price_def: 'avg',
++        ratio:'avg',
+         timestamp: 'distinct count',
++        upper_bound: 'avg',
++        lower_bound:'avg',
++        trigger_alert:'avg',
+       }));
+     }
+   }
+-- 
+2.45.1.windows.1
+
+
+From dcc6a181e50cba812735a4f6ed088e173f5dd995 Mon Sep 17 00:00:00 2001
+From: Jingyuan Yao <AllenYaoSH@outlook.com>
+Date: Fri, 24 May 2024 10:28:31 +0800
+Subject: [PATCH 3/5] update componentDidUpdate() 61
+
+---
+ src/Graph.tsx | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Graph.tsx b/src/Graph.tsx
+index 18e20a8..edfca4b 100644
+--- a/src/Graph.tsx
++++ b/src/Graph.tsx
+@@ -56,9 +56,9 @@ class Graph extends Component<IProps, {}> {
+ 
+   componentDidUpdate() {
+     if (this.table) {
+-      this.table.update(
++      this.table.update([
+         DataManipulator.generateRow(this.props.data),
+-      );
++      ]as unknown as TableData);
+     }
+   }
+ }
+-- 
+2.45.1.windows.1
+
+
+From 5bb95535c309ea5961167f253bdfcf5a5766917f Mon Sep 17 00:00:00 2001
+From: Jingyuan Yao <AllenYaoSH@outlook.com>
+Date: Fri, 24 May 2024 10:31:23 +0800
+Subject: [PATCH 4/5] 4-10 modify the raw interface
+
+---
+ src/DataManipulator.ts | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/DataManipulator.ts b/src/DataManipulator.ts
+index 7f62295..a832197 100644
+--- a/src/DataManipulator.ts
++++ b/src/DataManipulator.ts
+@@ -1,9 +1,13 @@
+ import { ServerRespond } from './DataStreamer';
+ 
+ export interface Row {
+-  stock: string,
+-  top_ask_price: number,
++  price_abc: number,
++  price_def: number,
++  ratio:number,
+   timestamp: Date,
++  upper_bound: number,
++  lower_bound:number,
++  trigger_alert: number | undefined ,
+ }
+ 
+ 
+-- 
+2.45.1.windows.1
+
+
+From c0c6f1e5e54e7c0783e666ac506ffaa044c3ef4d Mon Sep 17 00:00:00 2001
+From: Jingyuan Yao <AllenYaoSH@outlook.com>
+Date: Fri, 24 May 2024 11:20:29 +0800
+Subject: [PATCH 5/5] tttttt
+
+---
+ src/DataManipulator.ts | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/src/DataManipulator.ts b/src/DataManipulator.ts
+index a832197..598451a 100644
+--- a/src/DataManipulator.ts
++++ b/src/DataManipulator.ts
+@@ -13,12 +13,20 @@ export interface Row {
+ 
+ export class DataManipulator {
+   static generateRow(serverResponds: ServerRespond[]) {
+-    return serverResponds.map((el: any) => {
++      const PriceABC=(serverRespond[0].top_ask.price+serverRespond[0].top_bid.price)/2;
++      const PriceDEF=(serverRespond[1].top_ask.price+serverRespond[1].top_bid.price)/2;
++      const ratio=priceABC/priceDEF;
++      const upperBound=1+0.05;
++      const lowerBound=1-0.05;
+       return {
+-        stock: el.stock,
+-        top_ask_price: el.top_ask && el.top_ask.price || 0,
+-        timestamp: el.timestamp,
++        price_abc=priceABC,
++        price_def=priceDEF,
++        ratio,
++        timestamp: serverRespond[0].timestamp>serverRespond[1]>timestamp ?
++            serverRespond[0].timestamp: serverRespond[1]>timestamp,
++        upper_bound:upperBound,
++        lower_bound: lowerBound,
++        trigger_alert: (ratio>upperBound||ratio<lowerBound) ? ratio : undefined ,
+       };
+-    })
+   }
+ }
+-- 
+2.45.1.windows.1
+
