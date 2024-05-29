@@ -27,4 +27,4 @@ https://www.theforage.com/virtual-internships/R5iK7HMxJGBgaSbvk
 ## My Certificate of Completion
 
 
-![Click here to see my certificate of completion](https://github.com/AllenYao06/JPMorgan-Chase-Software-Engineer-Virtual-Internship/blob/e6be1be8a2d1efe1b9945d110699598f70d191aa/My%20Certificate%20of%20Completion.pdf)
+![Click here to see my certificate of completion](https://github.com/AllenYao06/JPMorgan-Chase-Software-Engineer-Virtual-Internship/blob/7ea79a8aa4864d4471e4fc35badcfc64281c10bf/My%20Certificate%20of%20Completion.jpg)
